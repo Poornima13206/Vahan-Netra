@@ -451,21 +451,34 @@ function showPredictionLine(fromLatLng, toLatLng){
   map.fitBounds([fromLatLng, toLatLng], { padding:[80,80] });
 }
 
+let vehicleAnimToken = 0;
+let activeMoveInterval = null;
+
 function animateVehicle(latlngs){
-  if(vehicleMarker){ map.removeLayer(vehicleMarker); }
+  // Invalidate and stop any animation already in flight from a previous
+  // call (e.g. the user clicked a second route card before the first
+  // one's animation finished) -- without this, two animations end up
+  // fighting over the same marker and it looks like two dots moving.
+  vehicleAnimToken++;
+  const myToken = vehicleAnimToken;
+  if(activeMoveInterval){ clearInterval(activeMoveInterval); activeMoveInterval = null; }
+
+  if(vehicleMarker){ map.removeLayer(vehicleMarker); vehicleMarker = null; }
   if(latlngs.length === 0) return;
   vehicleMarker = L.circleMarker(latlngs[0], { radius:8, color:'#F2A63C', weight:2, fillColor:'#F2A63C', fillOpacity:0.9 }).addTo(map);
   let i = 0;
   const step = () => {
+    if(myToken !== vehicleAnimToken) return; // superseded by a newer animation
     if(i >= latlngs.length - 1) return;
     const from = latlngs[i], to = latlngs[i+1];
     const steps = 40; let s = 0;
-    const move = setInterval(()=>{
+    activeMoveInterval = setInterval(()=>{
+      if(myToken !== vehicleAnimToken){ clearInterval(activeMoveInterval); return; }
       s++;
       const lat = from[0] + (to[0]-from[0])*(s/steps);
       const lng = from[1] + (to[1]-from[1])*(s/steps);
       vehicleMarker.setLatLng([lat,lng]);
-      if(s>=steps){ clearInterval(move); i++; step(); }
+      if(s>=steps){ clearInterval(activeMoveInterval); i++; step(); }
     }, 30);
   };
   step();
