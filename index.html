@@ -186,6 +186,16 @@
   .od-row:hover .od-route{ color:var(--cyan); }
   .od-route{ color:var(--text); }
   .od-stats{ color:var(--text-faint); font-family:var(--mono); font-size:11px; white-space:nowrap; margin-left:8px; }
+
+  .predict-card{
+    background:var(--panel); border:1px solid #6D5ACD; border-radius:8px;
+    padding:10px 12px; margin-top:8px; cursor:pointer;
+  }
+  .predict-card:hover{ background:#1a1530; }
+  .predict-head{ display:flex; justify-content:space-between; align-items:baseline; }
+  .predict-cam{ font-size:13px; font-weight:500; color:#B8ACF0; }
+  .predict-prob{ font-family:var(--mono); font-size:12px; font-weight:600; color:#B8ACF0; }
+  .predict-meta{ font-size:11px; color:var(--text-dim); margin-top:4px; font-family:var(--mono); }
 </style>
 </head>
 <body>
@@ -392,6 +402,21 @@ async function loadTrajectory(plate){
         </div>
       `).join('')}
     ` : ''}
+    ${data.prediction && data.prediction.predictions && data.prediction.predictions.length ? `
+      <div class="panel-header" style="padding-left:0; padding-right:0; margin:16px 0 6px;">
+        Predicted next location
+      </div>
+      ${data.prediction.predictions.map(p => `
+        <div class="predict-card" onclick="showPredictionLine([${data.stops[data.stops.length-1].lat},${data.stops[data.stops.length-1].lng}],[${p.lat},${p.lng}])">
+          <div class="predict-head">
+            <span class="predict-cam">${p.camera_name}</span>
+            <span class="predict-prob">${(p.probability*100).toFixed(0)}%</span>
+          </div>
+          <div class="predict-meta">ETA ~${p.eta_minutes} min &middot; based on ${p.based_on_trips} historical trips</div>
+        </div>
+      `).join('')}
+      <div class="hint" style="margin-top:6px;">Based on where vehicles seen at this camera have historically gone next &mdash; a population pattern, not a guarantee for this specific vehicle.</div>
+    ` : ''}
   `;
 
   // draw route + animate a vehicle dot
@@ -413,6 +438,15 @@ function showReidLine(fromLatLng, toLatLng){
   L.circleMarker(toLatLng, { radius:7, color:'#F2A63C', weight:2, fillColor:'#F2A63C', fillOpacity:0.4 })
     .addTo(trajectoryLayer)
     .bindTooltip('Unconfirmed re-ID candidate', {direction:'top'})
+    .openTooltip();
+  map.fitBounds([fromLatLng, toLatLng], { padding:[80,80] });
+}
+
+function showPredictionLine(fromLatLng, toLatLng){
+  L.polyline([fromLatLng, toLatLng], { color:'#8B7AE8', weight:3, dashArray:'2,8', opacity:0.85 }).addTo(trajectoryLayer);
+  L.circleMarker(toLatLng, { radius:7, color:'#8B7AE8', weight:2, fillColor:'#8B7AE8', fillOpacity:0.3 })
+    .addTo(trajectoryLayer)
+    .bindTooltip('Predicted next location', {direction:'top'})
     .openTooltip();
   map.fitBounds([fromLatLng, toLatLng], { padding:[80,80] });
 }

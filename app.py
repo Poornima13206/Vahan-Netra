@@ -35,6 +35,7 @@ from fastapi.staticfiles import StaticFiles
 
 from anomaly import detect_anomalies
 from reid import find_reid_candidates
+from predict import predict_next_camera
 import detect_plates
 
 DB_PATH = Path(__file__).parent / "anpr.db"
@@ -413,6 +414,7 @@ def get_trajectory(plate: str):
         "stop_count": len(stops),
         "stops": stops,
         "reid_candidates": find_reid_candidates(plate) if stops else [],
+        "prediction": predict_next_camera(plate) if stops else None,
     }
 
 

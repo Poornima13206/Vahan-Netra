@@ -191,6 +191,29 @@ distinct from single-vehicle trajectory tracking — it answers "where
 does city traffic actually flow" rather than "where did this one
 vehicle go."
 
+## Predictive next-camera / ETA
+
+`backend/predict.py` turns the system from reactive to proactive: given a
+vehicle's last confirmed camera, it looks at everyone else who's ever
+been seen at that same camera and where they went next, converting that
+into a probability distribution plus an ETA based on historical travel
+time on that specific hop. Reuses the exact same edge-frequency data the
+OD-matrix and anomaly baseline already compute (`anomaly.get_trajectories_and_edges()`)
+rather than a separate data pipeline.
+
+Exposed via the `prediction` field on `GET /api/trajectory/{plate}`,
+shown in the dashboard as a **"Predicted next location"** section
+(violet dotted line on the map, distinct from the confirmed route in
+cyan and re-ID candidates in amber).
+
+**Important framing, say this explicitly if asked:** this is a
+population-level pattern ("vehicles seen here usually go there"), not a
+guarantee about this specific vehicle. It needs at least 2 historical
+trips on a given hop before it will predict anything — on a camera with
+no outgoing history yet, it honestly returns "not enough data" rather
+than guessing. Same cold-start caveat as route anomaly detection: more
+historical traffic through a camera means better predictions.
+
 ## Where to take this next (good "Phase 2" slide material)
 
 - Real YOLOv8 + PaddleOCR pipeline (`ocr_pipeline.py` is the entry point)

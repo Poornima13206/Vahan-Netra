@@ -93,6 +93,18 @@ def _build_edge_baseline(trajectories):
     return edges
 
 
+def get_trajectories_and_edges():
+    """Public entry point for other modules (e.g. predict.py) that need the
+    same resolved-identity trajectories and camera-to-camera edge baseline
+    this module already builds for anomaly detection -- avoids recomputing
+    the same thing twice from two different places."""
+    conn = get_conn()
+    trajectories = _all_trajectories(conn)
+    edges = _build_edge_baseline(trajectories)
+    conn.close()
+    return trajectories, edges
+
+
 def detect_anomalies(min_samples=MIN_SAMPLES_FOR_BASELINE, z_thresh=Z_SCORE_THRESHOLD,
                       max_speed_kmh=MAX_PLAUSIBLE_SPEED_KMH):
     conn = get_conn()
