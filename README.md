@@ -11,12 +11,19 @@ flow, route anomaly detection, predictive movement) on top of it.
 
 ## 1. What this actually does
 
+## 1. What this actually does
+
 | Problem statement requirement | What's built |
 |---|---|
 | High-accuracy OCR engine (>90% target) | Real OCR pipeline (OpenCV + Tesseract) — works well on clean plates, honestly does **not** yet hit 90% on angled/blurred plates (see Limitations). Fuzzy matching compensates at the search layer. |
 | Single plate trajectory tracking | Fully working — search any plate, see its complete route across every camera, animated on a live GIS map with timestamps |
 | Macro traffic flow & movement analytics | Heatmap, Origin-Destination flow map, and statistical route anomaly detection |
 | Alert system (blacklist + anomalies) | Real-time blacklist alerts via WebSocket + automated anomaly flagging |
+
+## What's simulated
+
+**Beyond the problem statement** (the project's actual differentiators):
+- Vehicle Re-ID fallback for plates that are too dirty/damaged/blurred to read at all
 
 **Beyond the problem statement** (the project's actual differentiators):
 - Vehicle Re-ID fallback for plates that are too dirty/damaged/blurred to read at all
