@@ -19,7 +19,7 @@ alerts, analytics — runs end-to-end without needing real camera hardware.
 - **City analytics** — per-camera density heatmap, busiest node, total
   detections, average OCR confidence.
 
-## What's simulated (and how to be honest about that to judges)
+## What's simulated 
 
 There's no real camera footage or trained OCR model here — that's out of
 scope for two people in a hackathon. `backend/app.py` generates a
